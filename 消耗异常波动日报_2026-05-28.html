@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第21事业部消耗异常波动日报 | 2026-05-28</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --primary: #4F6EF7;
+    --primary-light: #EEF1FE;
+    --danger: #E74C3C;
+    --danger-light: #FEF0EF;
+    --success: #27AE60;
+    --success-light: #EAFAF1;
+    --warning: #F39C12;
+    --warning-light: #FEF9ED;
+    --text: #1A202C;
+    --text-secondary: #718096;
+    --border: #E2E8F0;
+    --bg: #F7F8FC;
+    --card: #FFFFFF;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #4F6EF7 0%, #7C5CFC 100%);
+    color: white;
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(79,110,247,0.25);
+  }
+  .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .header .subtitle { font-size: 13px; opacity: 0.85; }
+
+  /* Nav */
+  .nav {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav a:hover { background: var(--primary-light); color: var(--primary); }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 20px; }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+  .kpi-card.danger { border-left-color: var(--danger); }
+  .kpi-card.success { border-left-color: var(--success); }
+  .kpi-card.warning { border-left-color: var(--warning); }
+  .kpi-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .kpi-value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .kpi-change { font-size: 12px; margin-top: 4px; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    background: var(--bg);
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:hover { background: var(--primary-light); }
+  tr.row-anomaly { background: var(--danger-light); }
+  tr.row-anomaly:hover { background: #fde8e6; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-up { background: var(--danger-light); color: var(--danger); }
+  .badge-down { background: var(--success-light); color: var(--success); }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-ok { background: var(--success-light); color: var(--success); }
+  .badge-new { background: var(--warning-light); color: var(--warning); }
+  .badge-high { background: var(--danger-light); color: var(--danger); }
+  .badge-med { background: var(--warning-light); color: var(--warning); }
+  .badge-low { background: var(--success-light); color: var(--success); }
+
+  /* Section */
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Sub-section */
+  .sub-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 16px 0 10px;
+    padding-left: 10px;
+    border-left: 3px solid var(--primary);
+    color: var(--text);
+  }
+  .sub-title-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    line-height: 1.6;
+    padding: 8px 12px;
+    background: var(--bg-light);
+    border-radius: 6px;
+    border-left: 3px solid var(--border);
+  }
+
+  /* Pattern & Suggestion */
+  .pattern-item {
+    background: var(--primary-light);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  .pattern-type { font-weight: 700; color: var(--primary); margin-right: 6px; }
+  .suggestion-item {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .suggestion-high { background: var(--danger-light); }
+  .suggestion-med { background: var(--warning-light); }
+  .suggestion-low { background: var(--success-light); }
+
+  /* Multi-anomaly detail */
+  .multi-detail {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .multi-detail-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--danger);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  /* Chart container */
+  #trend-chart { width: 100%; height: 360px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .kpi-value { font-size: 18px; }
+    .header { padding: 20px; }
+    .card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>📊 第21事业部消耗异常波动日报</h1>
+  <div class="subtitle">数据截至 2026-05-28 | 巨量-本地推 | 生成于 2026-05-29 12:14</div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <a href="#overview">📋 概览</a>
+  <a href="#top5-adv">🏢 TOP5广告主</a>
+  <a href="#top10">🔍 TOP10监控</a>
+  <a href="#anomaly">⚠️ 异常明细</a>
+  <a href="#patterns">🧠 AI规律</a>
+  <a href="#suggestions">💡 建议</a>
+  <a href="#trend">📈 趋势</a>
+</div>
+
+<!-- 一、KPI 概览 -->
+<a name="overview"></a>
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">昨日本地推消耗</div>
+    <div class="kpi-value">¥0</div>
+    <div class="kpi-change"><span style="color:var(--success)">🔻</span> 较前日 100.0%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">当月本地推消耗</div>
+    <div class="kpi-value">3412.7万</div>
+    <div class="kpi-change">05-28 月累计</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">当月本地推日均消耗</div>
+    <div class="kpi-value">126.4万</div>
+    <div class="kpi-change"><span style="color:var(--danger)">🔺</span> 较上月 4.0%</div>
+  </div>
+  <div class="kpi-card danger">
+    <div class="kpi-label">商机异常</div>
+    <div class="kpi-value">388</div>
+    <div class="kpi-change">环比超±20%</div>
+  </div>
+  <div class="kpi-card danger">
+    <div class="kpi-label">频繁波动账户</div>
+    <div class="kpi-value">1</div>
+    <div class="kpi-change">7天内≥3次异常</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">广告主主体数</div>
+    <div class="kpi-value">1,756</div>
+    <div class="kpi-change">商机 276 个</div>
+  </div>
+</div>
+
+<!-- 媒体端口分布 -->
+<div class="card">
+  <div class="card-title"><span class="icon">📡</span> 媒体端口消耗分布（全量口径）</div>
+  <div class="sub-title-desc">📊 数据口径：包含所有媒体端口（巨量-本地推、巨量-AD 等），非赠款消耗全量汇总。分析口径仅取「巨量-本地推」。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>端口</th><th>消耗合计</th><th>记录数</th></tr></thead>
+      <tbody>
+        <tr><td>巨量-AD</td><td>¥3,400,836.57</td><td>548条</td></tr><tr><td>巨量-本地推</td><td>¥122,672,192.84</td><td>95,997条</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 二、TOP5 广告主 -->
+<a name="top5-adv"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">2</span> 05-28消耗TOP5广告主主体</div>
+  <div class="sub-title-desc">📊 筛选条件：按 05-28（数据最新日期）当天各广告主非赠款消耗降序取 TOP5；无消耗门槛。波动值 = 当日消耗 - 前日消耗；环比 = (当日消耗 - 前日消耗) / 前日消耗。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>广告主主体</th><th>商机主体</th><th>05-28消耗</th><th>占比</th><th>波动值</th><th>环比(较05-27)</th></tr></thead>
+      <tbody>
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 三、TOP10 商机监控 -->
+<a name="top10"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">3</span> TOP10商机专属监控（近30天累计消耗TOP10 · ±20%预警）</div>
+  <div class="sub-title-desc">📊 筛选条件：TOP10 = 数据最新日期往前30天内累计非赠款消耗排名前10的商机；异常判定 = 当日环比变化绝对值 > 20%（无消耗门槛）。状态仅反映当天。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>商机名称</th><th>近30天累计</th><th>状态</th><th>05-27消耗</th><th>05-28消耗</th><th>波动值</th><th>环比</th></tr></thead>
+      <tbody>
+        <tr class=""><td>1</td><td>东莞市屠夫鸟文化传媒有限公司</td><td>¥4,435,181.04</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥148,214.53</td><td>-</td><td><span style="color:var(--success)">¥-148,214.53</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>2</td><td>长沙市到家悠享家政服务有限公司</td><td>¥2,043,408.02</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥61,481.28</td><td>-</td><td><span style="color:var(--success)">¥-61,481.28</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>3</td><td>掌银科技（广州）有限公司</td><td>¥1,995,715.00</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥46,010.25</td><td>-</td><td><span style="color:var(--success)">¥-46,010.25</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>4</td><td>河北尼纳科技有限公司</td><td>¥1,613,220.03</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥115,818.03</td><td>-</td><td><span style="color:var(--success)">¥-115,818.03</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>5</td><td>雅迪科技集团销售有限公司</td><td>¥1,458,157.78</td><td><span class="badge badge-ok">✅ 正常</span></td><td>-</td><td>-</td><td>-</td><td><span class="badge badge-new">新增</span></td></tr><tr class=""><td>6</td><td>南京四海一家旅行社有限公司</td><td>¥1,426,894.88</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥42,692.54</td><td>-</td><td><span style="color:var(--success)">¥-42,692.54</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>7</td><td>杭州嘻虎网络科技有限公司</td><td>¥1,230,825.39</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥44,800.27</td><td>-</td><td><span style="color:var(--success)">¥-44,800.27</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>8</td><td>河南速推文化传媒有限公司</td><td>¥1,208,891.51</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥50,520.08</td><td>-</td><td><span style="color:var(--success)">¥-50,520.08</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>9</td><td>深圳铭鸿万邦科技有限公司</td><td>¥1,073,026.86</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥67,677.69</td><td>-</td><td><span style="color:var(--success)">¥-67,677.69</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class=""><td>10</td><td>成都宝毅堂功夫健康管理有限公司</td><td>¥991,414.87</td><td><span class="badge badge-ok">✅ 正常</span></td><td>¥34,337.40</td><td>-</td><td><span style="color:var(--success)">¥-34,337.40</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 四、异常明细 -->
+<a name="anomaly"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">4</span> 异常明细</div>
+
+  <div class="sub-title">4.1 TOP10商机异常（环比±20%）</div>
+  <div class="sub-title-desc">📊 筛选条件：限定近30天累计消耗TOP10的商机；|环比变化| > 20%（无消耗门槛）。历史所有日期内的异常均展示。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>日期</th><th>商机名称</th><th>05-27消耗</th><th>05-28消耗</th><th>波动值</th><th>环比变化</th></tr></thead>
+      <tbody>
+        <tr class="row-anomaly"><td>2026-05-27</td><td>成都宝毅堂功夫健康管理有限公司</td><td>¥26,869.80</td><td>¥34,337.40</td><td><span style="color:var(--danger)">+¥7,467.60</span></td><td><span class="badge badge-up">🔺 +27.8%</span></td></tr><tr class="row-anomaly"><td>2026-05-27</td><td>河南速推文化传媒有限公司</td><td>¥64,215.51</td><td>¥50,520.08</td><td><span style="color:var(--success)">¥-13,695.43</span></td><td><span class="badge badge-down">🔻 -21.3%</span></td></tr><tr class="row-anomaly"><td>2026-05-26</td><td>河南速推文化传媒有限公司</td><td>¥53,226.03</td><td>¥64,215.51</td><td><span style="color:var(--danger)">+¥10,989.48</span></td><td><span class="badge badge-up">🔺 +20.6%</span></td></tr><tr class="row-anomaly"><td>2026-05-25</td><td>深圳铭鸿万邦科技有限公司</td><td>¥28,714.76</td><td>¥55,720.17</td><td><span style="color:var(--danger)">+¥27,005.41</span></td><td><span class="badge badge-up">🔺 +94.0%</span></td></tr><tr class="row-anomaly"><td>2026-05-25</td><td>河南速推文化传媒有限公司</td><td>¥21,678.40</td><td>¥53,226.03</td><td><span style="color:var(--danger)">+¥31,547.63</span></td><td><span class="badge badge-up">🔺 +145.5%</span></td></tr><tr class="row-anomaly"><td>2026-05-25</td><td>杭州嘻虎网络科技有限公司</td><td>¥37,144.29</td><td>¥52,569.44</td><td><span style="color:var(--danger)">+¥15,425.15</span></td><td><span class="badge badge-up">🔺 +41.5%</span></td></tr><tr class="row-anomaly"><td>2026-05-25</td><td>雅迪科技集团销售有限公司</td><td>¥1,449,957.37</td><td>¥0</td><td><span style="color:var(--success)">¥-1,449,957.37</span></td><td><span class="badge badge-down">🔻 -100.0%</span></td></tr><tr class="row-anomaly"><td>2026-05-25</td><td>长沙市到家悠享家政服务有限公司</td><td>¥86,904.86</td><td>¥62,470.34</td><td><span style="color:var(--success)">¥-24,434.52</span></td><td><span class="badge badge-down">🔻 -28.1%</span></td></tr><tr class="row-anomaly"><td>2026-05-24</td><td>河南速推文化传媒有限公司</td><td>¥38,084.63</td><td>¥21,678.40</td><td><span style="color:var(--success)">¥-16,406.23</span></td><td><span class="badge badge-down">🔻 -43.1%</span></td></tr><tr class="row-anomaly"><td>2026-05-24</td><td>掌银科技（广州）有限公司</td><td>¥41,113.70</td><td>¥52,393.09</td><td><span style="color:var(--danger)">+¥11,279.39</span></td><td><span class="badge badge-up">🔺 +27.4%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-title">4.2 短期多次异常账户（7天内≥3次）</div>
+  <div class="sub-title-desc">📊 筛选条件：广告主主体级 |环比| > 30% 且前日消耗 ≥ ¥10,000；在近7天内同一广告主触发异常 ≥ 3次，则列入此处。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>广告主主体</th><th>异常次数</th><th>累计消耗</th><th>主要商机（TOP3）</th></tr></thead>
+      <tbody>
+        <tr class="row-anomaly"><td>南京四海一家旅行社有限公司</td><td>3次</td><td>¥54,855.81</td><td>南京四海一家旅行社有限公司</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="multi-detail">
+    <div class="multi-detail-title">南京四海一家旅行社有限公司（异常3次，累计¥54,855.81）</div>
+    <table>
+      <thead><tr><th>日期</th><th>05-27消耗</th><th>05-28消耗</th><th>波动值</th><th>环比变化</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-27</td><td>¥22,063.27</td><td>¥14,501.34</td><td><span style="color:var(--success)">¥-7,561.93</span></td><td><span class="badge badge-down">🔻 -34.3%</span></td></tr><tr><td>2026-05-22</td><td>¥15,537.53</td><td>¥24,816.94</td><td><span style="color:var(--danger)">+¥9,279.41</span></td><td><span class="badge badge-up">🔺 +59.7%</span></td></tr><tr><td>2026-05-21</td><td>¥22,670.95</td><td>¥15,537.53</td><td><span style="color:var(--success)">¥-7,133.42</span></td><td><span class="badge badge-down">🔻 -31.5%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-title">4.3 其他广告主异常 TOP10（环比±30%）</div>
+  <div class="sub-title-desc">📊 筛选条件：排除TOP10商机关联的广告主；其余广告主主体 |环比| > 30% 且前日消耗 ≥ ¥10,000；取最新日期降序TOP10。</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>日期</th><th>广告主主体</th><th>05-27消耗</th><th>05-28消耗</th><th>波动值</th><th>环比变化</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-27</td><td>杭州诺丁山婚庆礼仪有限公司</td><td>¥10,001.35</td><td>¥6,000.00</td><td><span style="color:var(--success)">¥-4,001.35</span></td><td><span class="badge badge-down">🔻 -40.0%</span></td></tr><tr><td>2026-05-27</td><td>秦皇岛助目科技有限公司</td><td>¥25,315.08</td><td>¥13,490.39</td><td><span style="color:var(--success)">¥-11,824.69</span></td><td><span class="badge badge-down">🔻 -46.7%</span></td></tr><tr><td>2026-05-27</td><td>珠海蕾特恩网络科技有限公司</td><td>¥11,635.40</td><td>¥6,588.32</td><td><span style="color:var(--success)">¥-5,047.08</span></td><td><span class="badge badge-down">🔻 -43.4%</span></td></tr><tr><td>2026-05-27</td><td>上海柏晨网络科技有限公司</td><td>¥12,594.98</td><td>¥8,388.10</td><td><span style="color:var(--success)">¥-4,206.88</span></td><td><span class="badge badge-down">🔻 -33.4%</span></td></tr><tr><td>2026-05-26</td><td>杭州春亚科技有限公司</td><td>¥19,470.90</td><td>¥13,357.78</td><td><span style="color:var(--success)">¥-6,113.12</span></td><td><span class="badge badge-down">🔻 -31.4%</span></td></tr><tr><td>2026-05-26</td><td>重庆金夫人实业有限公司</td><td>¥30,522.34</td><td>¥19,788.24</td><td><span style="color:var(--success)">¥-10,734.10</span></td><td><span class="badge badge-down">🔻 -35.2%</span></td></tr><tr><td>2026-05-26</td><td>武汉继教升本在线服务有限公司</td><td>¥10,471.83</td><td>¥4,511.05</td><td><span style="color:var(--success)">¥-5,960.78</span></td><td><span class="badge badge-down">🔻 -56.9%</span></td></tr><tr><td>2026-05-26</td><td>河南佰鸿教育科技有限公司</td><td>¥10,813.14</td><td>¥6,489.27</td><td><span style="color:var(--success)">¥-4,323.87</span></td><td><span class="badge badge-down">🔻 -40.0%</span></td></tr><tr><td>2026-05-25</td><td>上海亲湉文化传播有限公司</td><td>¥13,997.27</td><td>¥7,155.24</td><td><span style="color:var(--success)">¥-6,842.03</span></td><td><span class="badge badge-down">🔻 -48.9%</span></td></tr><tr><td>2026-05-25</td><td>淄博综申教育咨询有限公司</td><td>¥12,919.37</td><td>¥4,789.89</td><td><span style="color:var(--success)">¥-8,129.48</span></td><td><span class="badge badge-down">🔻 -62.9%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<a name="patterns"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">5</span> AI规律分析</div>
+  <div class="sub-title-desc">📊 分析逻辑：基于全量「巨量-本地推」数据，按星期聚合消耗找周规律（最高/最低日）；近7天日均消耗 vs 前7天日均消耗计算周趋势。</div>
+  <div class="pattern-item"><span class="pattern-type">周规律：</span>周日消耗最低（¥17,060,044），周四最高（¥17,795,472），波动率 4.3%</div><div class="pattern-item"><span class="pattern-type">周趋势：</span>近7天日均消耗 ¥1,515,534，较前7天↑20.0%</div>
+</div>
+
+<a name="suggestions"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">6</span> 优化建议</div>
+  <div class="sub-title-desc">📊 触发逻辑：高优 = TOP10商机存在异常 或 短期多次异常账户数>0；中优 = 固定建议"建立波动归因SOP"；低优 = 固定建议"评估低成本时段投放"。</div>
+  <div class="suggestion-item suggestion-high">
+    <span class="badge badge-high">高</span>
+    <span>TOP10商机出现 388 次异常波动，建议与相关商务沟通确认原因</span>
+  </div>
+  <div class="suggestion-item suggestion-high">
+    <span class="badge badge-high">高</span>
+    <span>发现 1 个账户近期频繁波动，可能存在系统性因素</span>
+  </div>
+  <div class="suggestion-item suggestion-med">
+    <span class="badge badge-med">中</span>
+    <span>建议建立波动归因标准操作流程（SOP），提升响应效率</span>
+  </div>
+  <div class="suggestion-item suggestion-low">
+    <span class="badge badge-low">低</span>
+    <span>周日消耗偏低，可评估是否适合增加低成本时段投放</span>
+  </div>
+
+</div>
+
+<a name="trend"></a>
+<div class="card">
+  <div class="card-title"><span class="section-number">7</span> 本周趋势</div>
+  <div class="sub-title-desc">📊 数据范围：数据最新日期往前7天；展示每日非赠款消耗折线图及数据表，波动值 = 当日 - 前日。</div>
+  <div id="trend-chart"></div>
+</div>
+
+<div class="footer">
+  报告生成时间: 2026-05-29 12:14 | 数据截至: 2026-05-28 | 分析口径: 巨量-本地推
+</div>
+
+</div>
+
+<script>
+var chart = echarts.init(document.getElementById('trend-chart'));
+var dates = ["05-22", "05-23", "05-24", "05-25", "05-26", "05-27", "05-28"];
+var weekdays = ["\u5468\u4e94", "\u5468\u516d", "\u5468\u65e5", "\u5468\u4e00", "\u5468\u4e8c", "\u5468\u4e09", "\u5468\u56db"];
+var values = [132.79, 128.74, 265.33, 138.06, 133.47, 143.63, 0.0];
+var changes = [null, -3.0, 106.1, -48.0, -3.3, 7.6, -100.0];
+
+var option = {
+  tooltip: {
+    trigger: 'axis',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderColor: '#E2E8F0',
+    borderWidth: 1,
+    textStyle: { color: '#1A202C', fontSize: 13 },
+    formatter: function(params) {
+      var p = params[0];
+      var idx = p.dataIndex;
+      var change = changes[idx] !== null ? (changes[idx] > 0 ? '<span style="color:#E74C3C">🔺 +' + changes[idx] + '%</span>' : '<span style="color:#27AE60">🔻 ' + changes[idx] + '%</span>') : '-';
+      return '<b>' + dates[idx] + ' ' + weekdays[idx] + '</b><br/>消耗：<b>¥' + p.value + '万</b><br/>环比：' + change;
+    }
+  },
+  grid: { left: 60, right: 30, top: 50, bottom: 50 },
+  xAxis: {
+    type: 'category',
+    data: dates.map(function(d, i) { return d + '\n' + weekdays[i]; }),
+    axisLine: { lineStyle: { color: '#E2E8F0' } },
+    axisLabel: { color: '#718096', fontSize: 12 }
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: { color: '#718096', fontSize: 11, formatter: '{value}万' },
+    splitLine: { lineStyle: { color: '#F0F0F0', type: 'dashed' } }
+  },
+  series: [{
+    type: 'line',
+    data: values,
+    smooth: true,
+    symbol: 'circle',
+    symbolSize: 10,
+    lineStyle: { color: '#4F6EF7', width: 3 },
+    itemStyle: { color: '#4F6EF7', borderColor: '#fff', borderWidth: 2 },
+    areaStyle: {
+      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        { offset: 0, color: 'rgba(79,110,247,0.15)' },
+        { offset: 1, color: 'rgba(79,110,247,0.01)' }
+      ])
+    },
+    label: {
+      show: true,
+      position: 'top',
+      formatter: '{c}万',
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#4F6EF7'
+    }
+  }],
+  title: {
+    text: '近7天每日消耗趋势',
+    left: 'center',
+    textStyle: { fontSize: 14, fontWeight: 'bold', color: '#1A202C' }
+  }
+};
+chart.setOption(option);
+window.addEventListener('resize', function() { chart.resize(); });
+</script>
+</body>
+</html>
