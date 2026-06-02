@@ -258,7 +258,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle">数据截至 2026-06-01 | 巨量-本地推 | 生成于 2026-06-02 09:52</div>
+  <div class="subtitle">数据截至 2026-06-01 | 巨量-本地推 | 生成于 2026-06-02 10:11</div>
 </div>
 
 <!-- Nav -->
@@ -474,7 +474,7 @@
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-02 09:52 | 数据截至: 2026-06-01 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-02 10:11 | 数据截至: 2026-06-01 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -603,7 +603,13 @@ multiTrends.forEach(function(item) {
         data: [{
           type: 'average',
           name: '7日均',
-          label: { formatter: '7日均: ¥{c}', fontSize: 10 },
+          label: {
+            formatter: function(p) {
+              var v = p.value;
+              return '7日均 ' + (v >= 10000 ? (v/10000).toFixed(1) + '万' : v.toLocaleString());
+            },
+            fontSize: 10, color: '#F39C12', fontWeight: 'bold'
+          },
           lineStyle: { color: '#F39C12', type: 'dashed', width: 1.5 }
         }]
       },
