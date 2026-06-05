@@ -258,7 +258,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle">数据截至 2026-06-04 | 巨量-本地推 | 生成于 2026-06-05 16:43</div>
+  <div class="subtitle">数据截至 2026-06-04 | 巨量-本地推 | 生成于 2026-06-05 17:03</div>
 </div>
 
 <!-- Nav -->
@@ -661,12 +661,66 @@
       </tr>
   </tbody></table>
 
+  <div style="margin-top:20px;">
+    <div style="font-weight:700;color:#1a73e8;margin:14px 0 6px 0;font-size:15px;">▍商务一组 & 二组 消耗排名（合并）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:6px;text-align:center;">昨日消耗排名</div>
+        <div id="sales-rank-yd" style="height:288px;"></div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:6px;text-align:center;">当月消耗排名</div>
+        <div id="sales-rank-month" style="height:288px;"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    function renderHBar(containerId, names, values) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      var chart = echarts.init(el);
+      var option = {
+        grid: { left: 80, right: 50, top: 10, bottom: 10 },
+        xAxis: { type: 'value', axisLabel: { formatter: function(v) { return v + '万'; } } },
+        yAxis: { type: 'category', data: names, axisLabel: { fontSize: 12 } },
+        series: [{
+          type: 'bar',
+          data: values,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: '#4facfe' },
+              { offset: 1, color: '#00f2fe' }
+            ]),
+            borderRadius: [0, 4, 4, 0]
+          },
+          label: {
+            show: true, position: 'right',
+            formatter: function(p) { return p.value + '万'; },
+            fontSize: 11, color: '#333'
+          },
+          barMaxWidth: 24
+        }]
+      };
+      chart.setOption(option);
+      return chart;
+    }
+    var _ydChart = renderHBar('sales-rank-yd', ["程鹏", "陈佳", "樊俊俊", "黄文强", "吕帅印", "陈梦燕", "胡金正", "尤欢", "于泽"], [np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0)]);
+    var _monthChart = renderHBar('sales-rank-month', ["吕帅印", "樊俊俊", "胡金正", "陈佳", "于泽", "程鹏", "尤欢", "黄文强", "陈梦燕"], [np.float64(0.05), np.float64(1.51), np.float64(6.19), np.float64(10.69), np.float64(10.8), np.float64(12.24), np.float64(19.09), np.float64(21.29), np.float64(43.29)]);
+    // 响应式 resize
+    window.addEventListener('resize', function() {
+      if (_ydChart) _ydChart.resize();
+      if (_monthChart) _monthChart.resize();
+    });
+  })();
+  </script>
+
 <a name="channel"></a>
 </div>
 <div class="card">
   <div class="card-title"><span class="section-number">6</span> 渠道/直客波动分析</div>
   <p style="color:#666;font-size:13px;margin-bottom:12px;">按客户类型分组展示近7天消耗波动（各类型Top5广告主 + 类型合计趋势）</p>
-  <div style="margin-bottom:12px"><button class="tab-btn active" onclick="switchTab(this, 'ch_0')">直客自拓 <small style="opacity:.7">(200.4万)</small></button><button class="tab-btn " onclick="switchTab(this, 'ch_1')">渠道推荐 <small style="opacity:.7">(14.7万)</small></button><button class="tab-btn " onclick="switchTab(this, 'ch_2')">招投标 <small style="opacity:.7">(0.9万)</small></button></div>
+  <div style="margin-bottom:12px"><button class="tab-btn active" onclick="switchTab(this, 'ch_0')">直客自拓 <small style="opacity:.7">(183.3万)</small></button><button class="tab-btn " onclick="switchTab(this, 'ch_1')">渠道推荐 <small style="opacity:.7">(313.9万)</small></button><button class="tab-btn " onclick="switchTab(this, 'ch_2')">招投标 <small style="opacity:.7">(14.8万)</small></button></div>
 <script>
 var _chCharts = {};
 function switchTab(btn, panelId) {
@@ -692,18 +746,18 @@ function switchTab(btn, panelId) {
   <table class="data-table" style="margin-top:10px"><thead><tr>
     <th>商机名称</th><th>近7天消耗</th><th>昨日消耗</th><th>日环比</th><th>7天环比</th>
   </tr></thead><tbody>
-<tr><td>东莞市屠夫鸟文化传媒有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">黄文强</span></td><td style="text-align:right">57.8万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -52.5%</span></td></tr>
-<tr><td>南京四海一家旅行社有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">14.1万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -53.2%</span></td></tr>
-<tr><td>陕西蓝装丝路会展有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈佳</span></td><td style="text-align:right">11.7万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -39.2%</span></td></tr>
-<tr><td>成都宝毅堂功夫健康管理有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈梦燕</span></td><td style="text-align:right">11.4万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -50.9%</span></td></tr>
-<tr><td>重庆金夫人实业有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">程鹏</span></td><td style="text-align:right">10.7万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -32.8%</span></td></tr>
+<tr><td>河北尼纳科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈梦燕</span></td><td style="text-align:right">24.6万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +391.5%</span></td></tr>
+<tr><td>东莞市屠夫鸟文化传媒有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">黄文强</span></td><td style="text-align:right">20.2万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -59.6%</span></td></tr>
+<tr><td>长沙市到家悠享家政服务有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">程鹏</span></td><td style="text-align:right">13.5万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -51.3%</span></td></tr>
+<tr><td>山东星火时代网络科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">于泽</span></td><td style="text-align:right">11.1万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -8.2%</span></td></tr>
+<tr><td>上海奈尔宝企业管理有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈梦燕</span></td><td style="text-align:right">6.6万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +140.2%</span></td></tr>
   </tbody></table>
 </div>
 <script>
 (function(){
   var dates = ["05-29", "05-30", "05-31", "06-01", "06-02", "06-03", "06-04"];
-  var dailyTotal = [514761.79, 498483.28, 522653.88, 468257.16, 0.0, 0.0, 0.0];
-  var series = [{"name": "东莞市屠夫鸟文化传媒有限公司", "type": "line", "smooth": true, "data": [153722.1, 155248.81, 143010.55, 125594.67, 0.0, 0.0, 0.0], "w7_mom": -52.5}, {"name": "南京四海一家旅行社有限公司", "type": "line", "smooth": true, "data": [33502.76, 38375.09, 35259.29, 34267.28, 0.0, 0.0, 0.0], "w7_mom": -53.2}, {"name": "陕西蓝装丝路会展有限公司", "type": "line", "smooth": true, "data": [29293.47, 34462.03, 28907.08, 24268.32, 0.0, 0.0, 0.0], "w7_mom": -39.2}, {"name": "成都宝毅堂功夫健康管理有限公司", "type": "line", "smooth": true, "data": [33153.12, 31703.59, 23615.68, 25887.81, 0.0, 0.0, 0.0], "w7_mom": -50.9}, {"name": "重庆金夫人实业有限公司", "type": "line", "smooth": true, "data": [24840.77, 16775.88, 33513.99, 31386.5, 0.0, 0.0, 0.0], "w7_mom": -32.8}];
+  var dailyTotal = [592021.42, 500721.96, 459475.05, 280455.16, 0.0, 0.0, 0.0];
+  var series = [{"name": "河北尼纳科技有限公司", "type": "line", "smooth": true, "data": [93182.91, 136771.19, 15873.25, 0.0, 0.0, 0.0, 0.0], "w7_mom": 391.5}, {"name": "东莞市屠夫鸟文化传媒有限公司", "type": "line", "smooth": true, "data": [49274.5, 55594.81, 49821.08, 47248.57, 0.0, 0.0, 0.0], "w7_mom": -59.6}, {"name": "长沙市到家悠享家政服务有限公司", "type": "line", "smooth": true, "data": [29369.27, 7873.02, 56574.34, 40991.26, 0.0, 0.0, 0.0], "w7_mom": -51.3}, {"name": "山东星火时代网络科技有限公司", "type": "line", "smooth": true, "data": [78512.99, 19528.82, 10615.67, 2124.86, 0.0, 0.0, 0.0], "w7_mom": -8.2}, {"name": "上海奈尔宝企业管理有限公司", "type": "line", "smooth": true, "data": [4528.53, 0.0, 30736.49, 30976.36, 0.0, 0.0, 0.0], "w7_mom": 140.2}];
   var colors = ["#1a73e8", "#e8711a", "#1ae862", "#e81a73", "#1ae8e8"];
   var tabId = 'ch_0';
   var panel = document.getElementById(tabId);
@@ -766,18 +820,18 @@ function switchTab(btn, panelId) {
   <table class="data-table" style="margin-top:10px"><thead><tr>
     <th>商机名称</th><th>近7天消耗</th><th>昨日消耗</th><th>日环比</th><th>7天环比</th>
   </tr></thead><tbody>
-<tr><td>杭州日日新互联网科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">黄文强</span></td><td style="text-align:right">12.6万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +8.0%</span></td></tr>
-<tr><td>深圳市雅诗迪生物科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈佳</span></td><td style="text-align:right">¥8,877</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -35.2%</span></td></tr>
-<tr><td>嗨麦（上海）文化传媒有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">¥4,287</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -68.8%</span></td></tr>
-<tr><td>新疆玺钡照明设备有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">¥3,962</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -44.0%</span></td></tr>
-<tr><td>赣州市名赫职业技能培训学校有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈佳</span></td><td style="text-align:right">¥2,811</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +9.9%</span></td></tr>
+<tr><td>东莞市屠夫鸟文化传媒有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">黄文强</span></td><td style="text-align:right">36.8万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -46.4%</span></td></tr>
+<tr><td>山东星火时代网络科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">于泽</span></td><td style="text-align:right">29.1万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +65.4%</span></td></tr>
+<tr><td>河北尼纳科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈梦燕</span></td><td style="text-align:right">21.5万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -55.6%</span></td></tr>
+<tr><td>掌银科技（广州）有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">11.9万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -45.8%</span></td></tr>
+<tr><td>长沙市到家悠享家政服务有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">程鹏</span></td><td style="text-align:right">10.9万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -35.0%</span></td></tr>
   </tbody></table>
 </div>
 <script>
 (function(){
   var dates = ["05-29", "05-30", "05-31", "06-01", "06-02", "06-03", "06-04"];
-  var dailyTotal = [27142.85, 53425.76, 59808.86, 6269.97, 0.0, 0.0, 0.0];
-  var series = [{"name": "杭州日日新互联网科技有限公司", "type": "line", "smooth": true, "data": [22759.75, 48993.95, 52715.37, 1940.85, 0.0, 0.0, 0.0], "w7_mom": 8.0}, {"name": "深圳市雅诗迪生物科技有限公司", "type": "line", "smooth": true, "data": [2364.38, 2228.75, 2128.99, 2155.29, 0.0, 0.0, 0.0], "w7_mom": -35.2}, {"name": "嗨麦（上海）文化传媒有限公司", "type": "line", "smooth": true, "data": [0.0, 715.05, 3229.04, 342.6, 0.0, 0.0, 0.0], "w7_mom": -68.8}, {"name": "新疆玺钡照明设备有限公司", "type": "line", "smooth": true, "data": [1034.88, 946.03, 1149.82, 831.23, 0.0, 0.0, 0.0], "w7_mom": -44.0}, {"name": "赣州市名赫职业技能培训学校有限公司", "type": "line", "smooth": true, "data": [683.84, 541.98, 585.64, 1000.0, 0.0, 0.0, 0.0], "w7_mom": 9.9}];
+  var dailyTotal = [786099.92, 829362.76, 740949.78, 783015.44, 0.0, 0.0, 0.0];
+  var series = [{"name": "东莞市屠夫鸟文化传媒有限公司", "type": "line", "smooth": true, "data": [102346.7, 95004.23, 93189.47, 77025.3, 0.0, 0.0, 0.0], "w7_mom": -46.4}, {"name": "山东星火时代网络科技有限公司", "type": "line", "smooth": true, "data": [70019.55, 105625.0, 79167.31, 36585.86, 0.0, 0.0, 0.0], "w7_mom": 65.4}, {"name": "河北尼纳科技有限公司", "type": "line", "smooth": true, "data": [28392.8, 11500.0, 54133.89, 121249.0, 0.0, 0.0, 0.0], "w7_mom": -55.6}, {"name": "掌银科技（广州）有限公司", "type": "line", "smooth": true, "data": [33734.88, 37309.33, 28928.48, 19195.03, 0.0, 0.0, 0.0], "w7_mom": -45.8}, {"name": "长沙市到家悠享家政服务有限公司", "type": "line", "smooth": true, "data": [20529.71, 59113.05, 9527.02, 19896.35, 0.0, 0.0, 0.0], "w7_mom": -35.0}];
   var colors = ["#1a73e8", "#e8711a", "#1ae862", "#e81a73", "#1ae8e8"];
   var tabId = 'ch_1';
   var panel = document.getElementById(tabId);
@@ -840,16 +894,19 @@ function switchTab(btn, panelId) {
   <table class="data-table" style="margin-top:10px"><thead><tr>
     <th>商机名称</th><th>近7天消耗</th><th>昨日消耗</th><th>日环比</th><th>7天环比</th>
   </tr></thead><tbody>
-<tr><td>火星人厨具股份有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">魏筱宇</span></td><td style="text-align:right">¥5,463</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -96.3%</span></td></tr>
-<tr><td>武汉红星美凯龙世博家居广场发展有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">魏筱宇</span></td><td style="text-align:right">¥3,556</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +246.5%</span></td></tr>
+<tr><td>河北尼纳科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">陈梦燕</span></td><td style="text-align:right">7.6万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +8.6%</span></td></tr>
+<tr><td>掌银科技（广州）有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">1.2万</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-up">🔺 +324.5%</span></td></tr>
+<tr><td>杭州春亚科技有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">程鹏</span></td><td style="text-align:right">¥9,951</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -36.6%</span></td></tr>
+<tr><td>东莞市屠夫鸟文化传媒有限公司<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">黄文强</span></td><td style="text-align:right">¥8,071</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-down">🔻 -73.9%</span></td></tr>
+<tr><td>西安市灞桥区大奔高考补习学校<span style="background:#e8f0fe;color:#1a73e8;font-size:11px;padding:1px 5px;border-radius:3px;margin-left:4px">尤欢</span></td><td style="text-align:right">¥6,098</td><td style="text-align:right">¥0</td><td style="text-align:center"><span class="badge badge-new">新增</span></td><td style="text-align:center"><span class="badge badge-new">新增</span></td></tr>
   </tbody></table>
 </div>
 <script>
 (function(){
   var dates = ["05-29", "05-30", "05-31", "06-01", "06-02", "06-03", "06-04"];
-  var dailyTotal = [4708.52, 1029.94, 1400.31, 1880.0, 0.0, 0.0, 0.0];
-  var series = [{"name": "火星人厨具股份有限公司", "type": "line", "smooth": true, "data": [1152.47, 1029.94, 1400.31, 1880.0, 0.0, 0.0, 0.0], "w7_mom": -96.3}, {"name": "武汉红星美凯龙世博家居广场发展有限公司", "type": "line", "smooth": true, "data": [3556.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "w7_mom": 246.5}];
-  var colors = ["#1a73e8", "#e8711a"];
+  var dailyTotal = [22302.5, 12790.0, 92833.65, 19755.71, 0.0, 0.0, 0.0];
+  var series = [{"name": "河北尼纳科技有限公司", "type": "line", "smooth": true, "data": [0.0, 0.0, 76000.0, 0.0, 0.0, 0.0, 0.0], "w7_mom": 8.6}, {"name": "掌银科技（广州）有限公司", "type": "line", "smooth": true, "data": [0.0, 1134.6, 322.7, 10173.3, 0.0, 0.0, 0.0], "w7_mom": 324.5}, {"name": "杭州春亚科技有限公司", "type": "line", "smooth": true, "data": [0.0, 0.0, 9950.92, 0.0, 0.0, 0.0, 0.0], "w7_mom": -36.6}, {"name": "东莞市屠夫鸟文化传媒有限公司", "type": "line", "smooth": true, "data": [2100.9, 4649.77, 0.0, 1320.8, 0.0, 0.0, 0.0], "w7_mom": -73.9}, {"name": "西安市灞桥区大奔高考补习学校", "type": "line", "smooth": true, "data": [5778.03, 0.0, 0.0, 320.08, 0.0, 0.0, 0.0], "w7_mom": null}];
+  var colors = ["#1a73e8", "#e8711a", "#1ae862", "#e81a73", "#1ae8e8"];
   var tabId = 'ch_2';
   var panel = document.getElementById(tabId);
 
@@ -955,7 +1012,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-05 16:43 | 数据截至: 2026-06-04 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-05 17:03 | 数据截至: 2026-06-04 | 分析口径: 巨量-本地推
 </div>
 
 </div>
