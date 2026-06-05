@@ -258,11 +258,12 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle">数据截至 2026-06-04 | 巨量-本地推 | 生成于 2026-06-05 10:29</div>
+  <div class="subtitle">数据截至 2026-06-04 | 巨量-本地推 | 生成于 2026-06-05 10:47</div>
 </div>
 
 <!-- Nav -->
 <div class="nav">
+  <a href="#diagnosis">🩺 诊断摘要</a>
   <a href="#overview">📋 概览</a>
   <a href="#top5-adv">🏢 TOP5广告主</a>
   <a href="#top10">🔍 TOP10监控</a>
@@ -274,6 +275,81 @@
   <a href="#suggestions">💡 建议</a>
   <a href="#trend">📈 趋势</a>
 </div>
+
+<!-- 置顶诊断摘要 -->
+<a name="diagnosis"></a>
+<div class="diag-card">
+  <div class="diag-header">
+    <span class="diag-title">➡️ 今日诊断摘要</span>
+    <span class="diag-date">数据截至 06-04</span>
+  </div>
+  <div class="diag-body">
+    <!-- 左：昨日总消耗 -->
+    <div class="diag-col diag-col-main">
+      <div class="diag-total-label">昨日（06-04）本地推总消耗</div>
+      <div class="diag-total-val" style="color:#7f8c8d">¥0</div>
+      <div class="diag-total-sub">
+        较前日（06-03）<span style="color:#27ae60;font-weight:600">0.0%</span>
+        &nbsp;|&nbsp; 波动 <span style="color:#27ae60;font-weight:600">¥0</span>
+        &nbsp;|&nbsp; 前日 ¥0
+      </div>
+    </div>
+    <!-- 中：驱动因素 -->
+    <div class="diag-col diag-col-drive">
+      <div class="diag-section-title">🔍 主要波动驱动</div>
+      <div class="diag-drive-row">
+        <div class="diag-drive-group">
+          <div class="diag-drive-label">消耗上升</div>
+          <div class="diag-item" style="color:#999">暂无显著波动驱动因素</div>
+        </div>
+        <div class="diag-drive-group">
+          <div class="diag-drive-label">消耗下降</div>
+          <div style="color:#999;font-size:12px">无</div>
+        </div>
+      </div>
+    </div>
+    <!-- 右：建议关注 -->
+    <div class="diag-col diag-col-focus">
+      <div class="diag-section-title">📌 建议重点关注</div>
+      <div style="color:#52c41a;font-size:13px;padding:6px 0">✅ 暂无需要特别关注的客户</div>
+    </div>
+  </div>
+</div>
+<style>
+.diag-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 12px; padding: 20px 24px; margin: 0 0 16px;
+  color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.diag-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.diag-title { font-size:18px; font-weight:700; letter-spacing:1px; }
+.diag-date { font-size:12px; color:#a0aec0; }
+.diag-body { display:grid; grid-template-columns: 220px 1fr 260px; gap:20px; }
+.diag-col { }
+.diag-col-main { border-right:1px solid rgba(255,255,255,0.12); padding-right:20px; }
+.diag-total-label { font-size:12px; color:#a0aec0; margin-bottom:6px; }
+.diag-total-val { font-size:32px; font-weight:800; line-height:1.1; margin-bottom:6px; }
+.diag-total-sub { font-size:12px; color:#cbd5e0; line-height:1.8; }
+.diag-col-drive { border-right:1px solid rgba(255,255,255,0.12); padding-right:20px; }
+.diag-col-focus { }
+.diag-section-title { font-size:12px; font-weight:600; color:#90cdf4; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.diag-drive-row { display:flex; gap:16px; }
+.diag-drive-group { flex:1; }
+.diag-drive-label { font-size:11px; color:#a0aec0; margin-bottom:6px; }
+.diag-item { display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:7px; font-size:12px; }
+.diag-badge { font-size:11px; font-weight:700; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+.diag-badge.up { background:rgba(192,57,43,0.25); color:#fc8181; }
+.diag-badge.dn { background:rgba(39,174,96,0.25); color:#68d391; }
+.diag-biz { color:#e2e8f0; font-weight:600; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.diag-sub { color:#718096; font-size:11px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.diag-pct { font-size:11px; color:#a0aec0; }
+.diag-focus-item { display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px; font-size:12px; }
+.diag-focus-tag { font-size:10px; font-weight:700; color:#fff; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+@media (max-width:768px) {
+  .diag-body { grid-template-columns: 1fr; }
+  .diag-col-main, .diag-col-drive { border-right:none; border-bottom:1px solid rgba(255,255,255,0.12); padding-right:0; padding-bottom:16px; margin-bottom:16px; }
+}
+</style>
 
 <!-- 一、KPI 概览 -->
 <a name="overview"></a>
@@ -865,7 +941,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-05 10:29 | 数据截至: 2026-06-04 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-05 10:47 | 数据截至: 2026-06-04 | 分析口径: 巨量-本地推
 </div>
 
 </div>
