@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-01 | 巨量-本地推 | 生成于 2026-06-16 11:41</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-01 | 巨量-本地推 | 生成于 2026-06-16 12:25</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1384,7 +1384,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-16 11:41 | 数据截至: 2026-06-01 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-16 12:25 | 数据截至: 2026-06-01 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -2327,61 +2327,84 @@ multiTrends.forEach(function(item) {
 
     el.innerHTML = html;
 
-    // 延迟渲染ECharts（柱状图+折线图）— 从typeTop5Map取每个类型自己的数据
-    setTimeout(function() {
-      actualTypes.forEach(function(tn, idx) {
-        var tabId = 'ch_dyn_' + idx;
-        var td = typeData[tn];
-        var myTop5 = typeTop5Map[tn] || [];
+    // 存储渠道数据到全局，供switchChTab懒加载使用（避免display:none容器初始化失败）
+    window._chChartData = {
+      types: actualTypes,
+      typeData: typeData,
+      typeTop5Map: typeTop5Map,
+      dateArr7: dateArr7,
+      colors: _channelColors,
+      ds: ds,
+      initedTabs: {}
+    };
 
-        // 柱状图：合计趋势
-        var barEl = document.getElementById('ch-bar-' + tabId);
-        if (barEl) {
-          var bChart = echarts.init(barEl);
-          var bDates = dateArr7.map(function(d) { return d.substring(5); });
-          var bVals = dateArr7.map(function(d) { return parseFloat(((td.dailyCosts[d] || 0)/10000).toFixed(2)); });
-          bChart.setOption({
-            tooltip: { trigger: 'axis', formatter: function(ps) { return ps[0].name + ': ¥' + (ps[0].value*10000).toLocaleString(); } },
-            grid: { left: 70, right: 20, top: 15, bottom: 25 },
-            xAxis: { type: 'category', data: bDates, axisLabel: { fontSize: 11 } },
-            yAxis: { type: 'value', axisLabel: { formatter: function(v) { return v >= 1 ? v.toFixed(1)+'万' : v.toLocaleString(); }, fontSize: 11 } },
-            series: [{
-              type: 'bar', data: bVals,
-              itemStyle: { color: '#4a90d9', borderRadius: [4,4,0,0] },
-              barWidth: '50%',
-              label: { show: true, position: 'top', fontSize: 10,
-                formatter: function(p) { return p.value >= 1 ? p.value.toFixed(1)+'万' : p.value.toLocaleString(); }
-              }
-            }]
-          });
-        }
+    // 按tab初始化图表的内部函数（dispose旧实例 + 重新创建）
+    window._initChannelTab = function(tabId) {
+      var cd = window._chChartData;
+      if (!cd) return;
+      var idx = parseInt(tabId.split('_')[2]);
+      var tn = cd.types[idx];
+      if (!tn) return;
+      cd.initedTabs[tabId] = true;
 
-        // 折线图：Top5商机（用该类型自己的myTop5数据）
-        var lEl = document.getElementById('ch-line-' + tabId);
-        if (lEl && myTop5.length > 0) {
-          var lChart = echarts.init(lEl);
-          var lSeries = myTop5.slice(0,5).map(function(r) {
-            return { name: r.name, type: 'line', smooth: true, data: r.d.values, symbol: 'circle', symbolSize: 5 };
-          });
-          lChart.setOption({
-            color: _channelColors.slice(0, Math.min(5, myTop5.length)),
-            tooltip: { trigger: 'axis', formatter: function(ps) {
-              var s = ps[0].name + '<br/>';
-              ps.forEach(function(p) { s += p.marker + p.seriesName + ': ¥' + p.value.toLocaleString() + '<br/>'; });
-              return s;
-            } },
-            legend: { type: 'scroll', bottom: 0, textStyle: { fontSize: 11 } },
-            grid: { left: 70, right: 20, top: 20, bottom: 50 },
-            xAxis: { type: 'category', data: dateArr7.map(function(d){return d.substring(5);}), axisLabel: {fontSize:11} },
-            yAxis: { type: 'value', axisLabel: { formatter: function(v){return v>=10000?(v/10000).toFixed(1)+'万':v.toLocaleString();}, fontSize:11} },
-            series: lSeries
-          });
-        }
-      });
-    }, 150);
+      var td = cd.typeData[tn];
+      var myTop5 = cd.typeTop5Map[tn] || [];
+      var dArr7 = cd.dateArr7;
+      var dShorts = dArr7.map(function(d) { return d.substring(5); });
+
+      // 柱状图：合计趋势（先dispose再init，确保尺寸正确）
+      var barEl = document.getElementById('ch-bar-' + tabId);
+      if (barEl) {
+        var oldB = echarts.getInstanceByDom(barEl);
+        if (oldB) oldB.dispose();
+        var bChart = echarts.init(barEl);
+        var bVals = dArr7.map(function(d) { return parseFloat(((td.dailyCosts[d] || 0)/10000).toFixed(2)); });
+        bChart.setOption({
+          tooltip: { trigger: 'axis', formatter: function(ps) { return ps[0].name + ': ¥' + (ps[0].value*10000).toLocaleString(); } },
+          grid: { left: 70, right: 20, top: 15, bottom: 25 },
+          xAxis: { type: 'category', data: dShorts, axisLabel: { fontSize: 11 } },
+          yAxis: { type: 'value', axisLabel: { formatter: function(v) { return v >= 1 ? v.toFixed(1)+'万' : v.toLocaleString(); }, fontSize: 11 } },
+          series: [{
+            type: 'bar', data: bVals,
+            itemStyle: { color: '#4a90d9', borderRadius: [4,4,0,0] },
+            barWidth: '50%',
+            label: { show: true, position: 'top', fontSize: 10,
+              formatter: function(p) { return p.value >= 1 ? p.value.toFixed(1)+'万' : p.value.toLocaleString(); }
+            }
+          }]
+        });
+      }
+
+      // 折线图：Top5商机
+      var lEl = document.getElementById('ch-line-' + tabId);
+      if (lEl && myTop5.length > 0) {
+        var oldL = echarts.getInstanceByDom(lEl);
+        if (oldL) oldL.dispose();
+        var lChart = echarts.init(lEl);
+        var lSeries = myTop5.slice(0,5).map(function(r) {
+          return { name: r.name, type: 'line', smooth: true, data: r.d.values, symbol: 'circle', symbolSize: 5 };
+        });
+        lChart.setOption({
+          color: cd.colors.slice(0, Math.min(5, myTop5.length)),
+          tooltip: { trigger: 'axis', formatter: function(ps) {
+            var s = ps[0].name + '<br/>';
+            ps.forEach(function(p) { s += p.marker + p.seriesName + ': ¥' + p.value.toLocaleString() + '<br/>'; });
+            return s;
+          } },
+          legend: { type: 'scroll', bottom: 0, textStyle: { fontSize: 11 } },
+          grid: { left: 70, right: 20, top: 20, bottom: 50 },
+          xAxis: { type: 'category', data: dShorts, axisLabel: {fontSize:11} },
+          yAxis: { type: 'value', axisLabel: { formatter: function(v){return v>=10000?(v/10000).toFixed(1)+'万':v.toLocaleString();}, fontSize:11} },
+          series: lSeries
+        });
+      }
+    };
+
+    // 只初始化第一个（可见）tab的图表
+    setTimeout(function() { window._initChannelTab('ch_dyn_0'); }, 150);
   }
 
-  // 渠道 tab 切换（适配新ID格式 ch_dyn_idx）
+  // 渠道 tab 切换（懒加载：首次切换时初始化该tab的图表）
   window.switchChTab = function(btn) {
     var panelId = btn.getAttribute('data-tab');
     btn.parentElement.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -2389,12 +2412,18 @@ multiTrends.forEach(function(item) {
     document.querySelectorAll('#card-channel .tab-panel').forEach(function(p) { p.style.display = 'none'; });
     var panel = document.getElementById(panelId);
     if (panel) panel.style.display = 'block';
-    // resize 该 panel 内的两个图表
+    // 延迟处理：首次显示则懒初始化图表，已初始化过则resize
     setTimeout(function() {
-      ['ch-bar-' + panelId, 'ch-line-' + panelId].forEach(function(cid) {
-        var cel = document.getElementById(cid);
-        if (cel) { var inst = echarts.getInstanceByDom(cel); if (inst) inst.resize(); }
-      });
+      if (window._chChartData && !window._chChartData.initedTabs[panelId]) {
+        // 首次切换到该tab —— 需要创建图表（此时容器已visible，ECharts能正确计算尺寸）
+        window._initChannelTab(panelId);
+      } else {
+        // 已初始化过，只需resize
+        ['ch-bar-' + panelId, 'ch-line-' + panelId].forEach(function(cid) {
+          var cel = document.getElementById(cid);
+          if (cel) { var inst = echarts.getInstanceByDom(cel); if (inst) inst.resize(); }
+        });
+      }
     }, 50);
   };
 
@@ -2635,19 +2664,17 @@ multiTrends.forEach(function(item) {
     var diagDateEl = document.getElementById('diag-date-label');
     if (diagDateEl) diagDateEl.textContent = '数据截至 ' + shortDate(primaryDate);
 
-    // Render ALL sections dynamically
-    renderKPI(primaryDate);
-    renderTop5(primaryDate);
-    renderTop10(primaryDate);
-    renderTrend(primaryDate, 7);
-    renderDiagnosis(primaryDate);
-    renderAnomaly41(primaryDate);
-    renderAnomaly42(primaryDate);
-    renderSalesGroup(primaryDate);
-    renderChannel(primaryDate);
-    renderChurn(primaryDate);
-    renderPatterns(primaryDate);
-    renderSuggestions(primaryDate);
+    // Render ALL sections dynamically（每个函数独立try-catch，防止一个失败阻塞后续渲染）
+    var _renders = [
+      ['KPI', renderKPI], ['TOP5', renderTop5], ['TOP10', renderTop10],
+      ['Trend', function(d){ renderTrend(d, 7); }], ['Diagnosis', renderDiagnosis],
+      ['Anomaly41', renderAnomaly41], ['Anomaly42', renderAnomaly42],
+      ['SalesGroup', renderSalesGroup], ['Channel', renderChannel],
+      ['Churn', renderChurn], ['Patterns', renderPatterns], ['Suggestions', renderSuggestions]
+    ];
+    _renders.forEach(function(item) {
+      try { item[1](primaryDate); } catch(e) { console.warn('Render ' + item[0] + ' error:', e); }
+    });
 
     // No more static dimming
     updateStaticSections(true);
@@ -2667,18 +2694,17 @@ multiTrends.forEach(function(item) {
     }
     var diagDateElR = document.getElementById('diag-date-label');
     if (diagDateElR) diagDateElR.textContent = '数据截至 ' + shortDate(reportDate);
-    renderKPI(reportDate);
-    renderTop5(reportDate);
-    renderTop10(reportDate);
-    renderTrend(reportDate, 7);
-    renderDiagnosis(reportDate);
-    renderAnomaly41(reportDate);
-    renderAnomaly42(reportDate);
-    renderSalesGroup(reportDate);
-    renderChannel(reportDate);
-    renderChurn(reportDate);
-    renderPatterns(reportDate);
-    renderSuggestions(reportDate);
+    // 重置所有模块（带容错）
+    var _resetRenders = [
+      ['KPI', renderKPI], ['TOP5', renderTop5], ['TOP10', renderTop10],
+      ['Trend', function(d){ renderTrend(d, 7); }], ['Diagnosis', renderDiagnosis],
+      ['Anomaly41', renderAnomaly41], ['Anomaly42', renderAnomaly42],
+      ['SalesGroup', renderSalesGroup], ['Channel', renderChannel],
+      ['Churn', renderChurn], ['Patterns', renderPatterns], ['Suggestions', renderSuggestions]
+    ];
+    _resetRenders.forEach(function(item) {
+      try { item[1](reportDate); } catch(e) { console.warn('Reset render ' + item[0] + ' error:', e); }
+    });
     updateStaticSections(true);
   };
 
