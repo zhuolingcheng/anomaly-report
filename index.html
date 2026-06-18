@@ -2721,8 +2721,8 @@ multiTrends.forEach(function(item) {
     }, 150);
   }
 
-  // ===== 日期切换函数 =====
-  function setQuickDate(type) {
+  // ===== 日期切换函数（挂载到 window 供 onclick 调用） =====
+  window.setQuickDate = function(type) {
     var input = document.getElementById('filter-date');
     if (!input) return;
     var d = new Date();
@@ -2733,7 +2733,7 @@ multiTrends.forEach(function(item) {
     applyDateFilter();
   }
 
-  function applyDateFilter() {
+  window.applyDateFilter = function() {
     var input = document.getElementById('filter-date');
     if (!input || !input.value) return;
     var selDate = input.value;
@@ -2756,7 +2756,7 @@ multiTrends.forEach(function(item) {
     renderTrend(selDate, 30);
   }
 
-  function resetDateFilter() {
+  window.resetDateFilter = function() {
     var input = document.getElementById('filter-date');
     if (input) input.value = reportDate;
     var cdEl = document.getElementById('current-view-date');
