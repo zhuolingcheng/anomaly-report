@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-17 | 巨量-本地推 | 生成于 2026-06-18 16:41</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-17 | 巨量-本地推 | 生成于 2026-06-18 16:48</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1154,7 +1154,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-18 16:41 | 数据截至: 2026-06-17 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-18 16:48 | 数据截至: 2026-06-17 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -2338,205 +2338,135 @@ multiTrends.forEach(function(item) {
   };
 
   // ===== 流失客户预警（与Python静态HTML格式一致：卡片+ECharts趋势图） =====
-    function renderChurn(dateStr) {
+  function renderChurn(dateStr) {
     var el = document.getElementById('card-churn');
     if (!el) return;
-
-    // 1. 清理旧的 ECharts 实例
+    // 清理旧ECharts实例（防止残留图表干扰）
     var oldCharts = el.querySelectorAll('div[_echarts_instance_]');
     oldCharts.forEach(function(oc) {
       var inst = echarts.getInstanceByDom(oc);
       if (inst) inst.dispose();
     });
-
-    // 2. 根据 dateStr 定位日期索引
     var dateIdx = allDates.indexOf(dateStr);
-    if (dateIdx < 0) { el.innerHTML = '<p style="color:#999;padding:20px">该日期无数据</p>'; return; }
+    if (dateIdx < 0) return;
+    var ds = shortDate(dateStr);
 
-    // 3. 确定近7天范围（选中日及前6天，含选中日）
-    var startIdx = Math.max(0, dateIdx - 6);
-    var dayCount = dateIdx - startIdx + 1;
+    // 收集近7天所有广告主的每日消耗数组（选中日及前6天，含选中日）
+    var start7dIdx = Math.max(0, dateIdx - 6);
     var dateArr7 = [];
-    for (var di = startIdx; di <= dateIdx; di++) { dateArr7.push(allDates[di]); }
+    for (var di = start7dIdx; di <= dateIdx; di++) { dateArr7.push(allDates[di]); }
 
-    // 4. 流失检测核心逻辑（完全基于 dateStr 计算）
+    // 流失检测（与Python calc_churn_warning 逻辑一致）
     var CHURN_MIN_COST = 10000;
     var churnList = [];
-
     for (var ai = 0; ai < D.adv_names.length; ai++) {
-      // 取该广告主近7天的每日消耗
       var vals = [];
-      for (var di = startIdx; di <= dateIdx; di++) {
-        var dd = D.daily[allDates[di]];
-        vals.push((dd && dd.a && dd.a[ai]) ? dd.a[ai] : 0);
+      for (var di = start7dIdx; di <= dateIdx; di++) {
+        var da = D.daily[allDates[di]] ? D.daily[allDates[di]].a : {};
+        vals.push(da[ai] || 0);
       }
-      // 近7天峰值 < 门槛 → 跳过
       var peakCost = Math.max.apply(null, vals);
       if (peakCost < CHURN_MIN_COST) continue;
 
-      // 最后3天是否持续下降（严格递减）
-      var recent3 = vals.slice(-3);
-      var consecDown = true;
-      for (var ri = 1; ri < recent3.length; ri++) {
-        if (recent3[ri] >= recent3[ri - 1]) { consecDown = false; break; }
+      // 最后3天是否持续下降
+      var recent = vals.slice(-3);
+      var isConsecDown = true;
+      for (var ri = 1; ri < recent.length; ri++) {
+        if (recent[ri] >= recent[ri-1]) { isConsecDown = false; break; }
       }
-      if (!consecDown) continue;
+      if (!isConsecDown) continue;
 
       // 总降幅 >= 70%
       var dropRate = null;
-      if (recent3[0] > 0) {
-        dropRate = ((recent3[recent3.length - 1] - recent3[0]) / recent3[0] * 100);
-      }
+      if (recent[0] > 0) { dropRate = ((recent[recent.length-1] - recent[0]) / recent[0] * 100); }
       if (dropRate === null || Math.abs(dropRate) < 70) continue;
 
       // 每日环比
-      var momList = [null];
+      var dayMomList = [null];
       for (var mi = 1; mi < vals.length; mi++) {
-        momList.push(vals[mi - 1] > 0 ? ((vals[mi] - vals[mi - 1]) / vals[mi - 1] * 100) : null);
+        dayMomList.push(vals[mi-1] > 0 ? (vals[mi] - vals[mi-1]) / vals[mi-1] * 100 : null);
       }
 
       // 类型查找
       var typeName = '未分类';
       var dpToday = D.dp[dateStr] || {};
-      for (var pk in dpToday) {
-        var pair = D.pairs ? D.pairs[parseInt(pk)] : null;
-        if (pair && pair[0] === ai) {
-          var typeKey = pair[1] + '|' + pair[0];
-          var typeIdx = D.type_map ? D.type_map[typeKey] : undefined;
-          if (typeIdx !== undefined && D.type_names) { typeName = D.type_names[typeIdx]; break; }
+      for (var pi in dpToday) {
+        var p = D.pairs ? D.pairs[parseInt(pi)] : null;
+        if (p && p[0] === ai) {
+          var tk = p[1] + '|' + p[0];
+          var ti = D.type_map ? D.type_map[tk] : undefined;
+          if (ti !== undefined && D.type_names) { typeName = D.type_names[ti]; break; }
         }
       }
 
       churnList.push({
-        name: D.adv_names[ai],
-        idx: ai,
+        advIdx: ai, adv: D.adv_names[ai],
         values: vals,
-        labels: dateArr7.map(function(d) { return d.substring(5); }),
-        dropPct: dropRate,
-        latestVal: recent3[recent3.length - 1],
-        peakVal: peakCost,
-        moms: momList,
-        type: typeName
+        dates: dateArr7.map(function(d) { return d.substring(5); }),
+        recentDrop: dropRate, latestCost: recent[recent.length-1], peakCost: peakCost,
+        dayMomList: dayMomList, type: typeName
       });
     }
 
-    // 5. 排序：按最新消耗升序（最危险的排前面）
-    churnList.sort(function(a, b) { return a.latestVal - b.latestVal; });
+    churnList.sort(function(a,b) { return a.latestCost - b.latestCost; });
     churnList = churnList.slice(0, 15);
 
-    // 6. 构建标题
-    var rangeStr = dateArr7.length > 0
-      ? (dateArr7[0].substring(5) + ' ~ ' + dateArr7[dateArr7.length - 1].substring(5))
-      : dateStr.substring(5);
+    // 构建HTML（卡片+ECharts，与Python静态格式一致）
+    var dateRangeStr = (dateArr7.length > 0) ? (dateArr7[0].substring(5) + ' ~ ' + dateArr7[dateArr7.length-1].substring(5)) : ds;
+    var html = '<div class="card-title"><span class="section-number">7</span> 流失客户预警</div>';
+    html += '<p style="color:#666;font-size:13px;margin-bottom:12px;">连续' + CHURN_CONSECUTIVE_DAYS + '天消耗持续降低的广告主（近7天峰值消耗 ≥ ¥10,000）<span style="float:right">📅 统计区间：' + dateRangeStr + '</span></p>';
 
-    var h = '<div class="card-title"><span class="section-number">7</span> 流失客户预警</div>';
-    h += '<p style="color:#666;font-size:13px;margin-bottom:12px;">连续3天消耗持续降低的广告主（近7天峰值消耗 &ge; &yen;10,000）';
-    h += '<span style="float:right">&#128197; 统计区间：' + rangeStr + '</span></p>';
-
-    // 7. 无数据提示
     if (churnList.length === 0) {
-      h += '<div style="color:#52c41a;padding:16px;background:#f6ffed;border-radius:8px;">&#9989; 该日期暂无流失预警客户</div>';
-      el.innerHTML = h;
+      html += '<div style="color:#52c41a;padding:12px">✅ 暂无流失预警客户</div>';
+      el.innerHTML = html;
       return;
     }
 
-    // 8. 构建卡片HTML + 收集图表数据
-    var chartJobs = [];
-    for (var ci = 0; ci < churnList.length; ci++) {
-      var item = churnList[ci];
-      var cid = 'churn_c_' + dateStr.replace(/-/g,'') + '_' + ci + '_' + String(Math.floor(Math.random()*1000000));
-      var badge = item.dropPct !== null ? changeBadge(item.dropPct) : '';
+    churnList.forEach(function(citem, ci) {
+      var chartId = 'churn_dyn_' + ci + '_' + Math.random().toString(36).substr(2, 6);
+      var dropBadge = citem.recentDrop !== null ? changeBadge(citem.recentDrop) : '';
 
-      h += '<div style="margin-bottom:16px;padding:12px;background:#fff8f8;border:1px solid #ffd8d8;border-radius:8px;">';
-      h += '<div style="font-weight:bold;font-size:14px;color:#c0392b;margin-bottom:6px;">&#128683; ' + item.name + ownerTag(item.idx, 'adv') + '</div>';
-      h += '<div style="font-size:12px;color:#666;margin-bottom:8px;">';
-      h += '近3日降幅 ' + badge + ' &nbsp;|&nbsp; 最新消耗 <b>' + fmtWan(item.latestVal) + '</b>';
-      h += '&nbsp;|&nbsp; 7天峰值 <b>' + fmtWan(item.peakVal) + '</b>';
-      h += '</div>';
-      h += '<div id="' + cid + '" style="height:160px;width:100%"></div>';
-      h += '</div>';
+      html += '<div style="margin-bottom:18px;padding:10px;background:#fff8f8;border:1px solid #ffe0e0;border-radius:8px;">';
+      html += '<div style="font-weight:700;color:#c0392b;margin-bottom:4px">🚨 ' + citem.adv + ownerTag(citem.advIdx, 'adv') + '</div>';
+      html += '<div style="font-size:12px;color:#666;margin-bottom:6px">';
+      html += '近' + CHURN_CONSECUTIVE_DAYS + '日降幅 ' + dropBadge + ' &nbsp;|&nbsp; 最新消耗 <b>' + fmtWan(citem.latestCost) + '</b>';
+      html += '&nbsp;|&nbsp; 7天峰值 <b>' + fmtWan(citem.peakCost) + '</b>';
+      html += '</div>';
+      html += '<div id="' + chartId + '" style="height:150px"></div>';
+      html += '</div>';
 
-      chartJobs.push({ domId: cid, data: item });
-    }
+      // DOM插入后渲染ECharts
+      (function(cid, cdata){ setTimeout(function() {
+        var dom = document.getElementById(cid);
+        if (!dom || !echarts) return;
+        var chart = echarts.init(dom);
+        chart.setOption({
+          tooltip: { trigger: 'axis', formatter: function(ps) {
+            var v = ps[0].value, idx = ps[0].dataIndex, mom = cdata.dayMomList[idx];
+            var s = ps[0].name + ': ¥' + v.toLocaleString();
+            if (mom != null) s += '<br/>日环比: ' + (mom>0?'+':'') + mom.toFixed(1) + '%';
+            return s;
+          } },
+          grid: { left:60, right:20, top:20, bottom:30 },
+          xAxis: { type:'category', data:cdata.dates, axisLabel:{fontSize:10} },
+          yAxis: { type:'value', axisLabel:{ formatter:function(v){return v>=10000?(v/10000).toFixed(1)+'万':v.toLocaleString();}, fontSize:10 } },
+          series: [{
+            type:'line', data:cdata.values,
+            smooth:false, symbol:'circle', symbolSize:6,
+            lineStyle:{color:'#e74c3c',width:2},
+            itemStyle:{color:'#e74c3c'},
+            areaStyle:{color:'rgba(231,76,60,0.08)'},
+            label:{ show:true, position:'top', fontSize:10,
+              formatter:function(p){ var m=cdata.dayMomList[p.dataIndex]; return(m==null?'':'{{c|'+(m>0?'+':'')+m.toFixed(0)+'%}}'); },
+              rich:{c:{fontSize:10,color:'#666'}}
+            }
+          }]
+        });
+      }, 50); })(chartId, citem);
+    });
 
-    // 9. 先插入 DOM（关键！必须先 innerHTML 再 init ECharts）
-    el.innerHTML = h;
-
-    // 10. DOM 就绪后批量渲染趋势图
-    window.setTimeout(function() {
-      for (var ji = 0; ji < chartJobs.length; ji++) {
-        (function(job) {
-          var container = document.getElementById(job.domId);
-          if (!container || !echarts) return;
-          if (container.offsetWidth === 0) return; // 隐藏的不渲染
-
-          var chart = echarts.init(container);
-          chart.setOption({
-            backgroundColor: 'transparent',
-            tooltip: {
-              trigger: 'axis',
-              backgroundColor: 'rgba(255,255,255,0.95)',
-              borderColor: '#e74c3c',
-              textStyle: { color: '#333', fontSize: 12 },
-              formatter: function(params) {
-                var p = params[0];
-                var v = p.value;
-                var idx = p.dataIndex;
-                var mom = job.data.moms[idx];
-                var line1 = p.name + ': &yen;' + v.toLocaleString();
-                var line2 = (mom != null) ? ('日环比: ' + (mom > 0 ? '+' : '') + mom.toFixed(1) + '%') : '';
-                return line1 + (line2 ? '<br/>' + line2 : '');
-              }
-            },
-            grid: { left: 60, right: 20, top: 15, bottom: 28 },
-            xAxis: {
-              type: 'category',
-              data: job.data.labels,
-              axisLabel: { fontSize: 11, color: '#666' },
-              axisLine: { lineStyle: { color: '#ddd' } }
-            },
-            yAxis: {
-              type: 'value',
-              axisLabel: {
-                fontSize: 10, color: '#999',
-                formatter: function(v) { return v >= 10000 ? (v / 10000).toFixed(1) + '万' : v.toLocaleString(); }
-              },
-              splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } }
-            },
-            series: [{
-              type: 'line',
-              data: job.data.values,
-              smooth: false,
-              symbol: 'circle',
-              symbolSize: 6,
-              lineStyle: { color: '#e74c3c', width: 2 },
-              itemStyle: { color: '#e74c3c' },
-              areaStyle: {
-                color: {
-                  type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                  colorStops: [
-                    { offset: 0, color: 'rgba(231,76,60,0.15)' },
-                    { offset: 1, color: 'rgba(231,76,60,0.02)' }
-                  ]
-                }
-              },
-              label: {
-                show: true,
-                position: 'top',
-                fontSize: 10,
-                color: '#666',
-                formatter: function(p) {
-                  var m = job.data.moms[p.dataIndex];
-                  return (m != null) ? ((m > 0 ? '+' : '') + m.toFixed(0) + '%') : '';
-                }
-              }
-            }]
-          });
-        })(chartJobs[ji]);
-      }
-    }, 150);
+    el.innerHTML = html;
   }
-
 
   // ===== AI规律分析 =====
   function renderPatterns(dateStr) {
