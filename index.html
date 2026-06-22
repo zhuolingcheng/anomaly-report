@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 09:57</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 10:19</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1240,7 +1240,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-22 09:57 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-22 10:19 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -1883,10 +1883,19 @@ multiTrends.forEach(function(item) {
 
   // ===== 异常明细 4.2（卡片式：标题+明细表格+7天趋势图+7日均线） =====
   function renderAnomaly42(dateStr) {
+    console.log('[renderAnomaly42] called with dateStr=' + dateStr);
     var dateIdx = allDates.indexOf(dateStr);
-    if (dateIdx < 0) return;
+    if (dateIdx < 0) { console.warn('[renderAnomaly42] dateIdx<0 for ' + dateStr); return; }
     var el = document.getElementById('card-anomaly42');
-    if (!el) return;
+    if (!el) { console.warn('[renderAnomaly42] #card-anomaly42 not found'); return; }
+
+    // 先销毁旧的 ECharts 实例（防止内存泄漏和重复渲染）
+    var _oldCharts = el.querySelectorAll('div[_echarts_instance_]');
+    _oldCharts.forEach(function(_od) {
+      var _inst = echarts.getInstanceByDom(_od);
+      if (_inst) _inst.dispose();
+    });
+
     // 7天窗口（选中日及前6天，含选中日）
     var startIdx = Math.max(0, dateIdx - 6);
     // 统计每个广告主在7天内|环比|>40%的天数，并收集每条异常明细
@@ -1981,6 +1990,7 @@ multiTrends.forEach(function(item) {
 
     var el = document.getElementById('card-anomaly42');
     if (el) {
+      console.log('[renderAnomaly42] updating innerHTML, multiAnomaly.length=' + multiAnomaly.length + ', dateStr=' + dateStr);
       if (multiAnomaly.length === 0) {
         el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b>（近7天内同一广告主触发异常 ≥ 4次）<span style="float:right;font-weight:400;color:#888;font-size:12px">📅 统计区间：' + (allDates[startIdx]?allDates[startIdx].substring(5):'') + '~' + dateStr.substring(5) + '</span></div><div style="color:#52c41a;padding:16px">✅ 暂无频繁波动账户</div>';
       } else {
