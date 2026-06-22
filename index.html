@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 15:04</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 15:21</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1182,7 +1182,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-22 15:04 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-22 15:21 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -1836,7 +1836,7 @@ function renderAnomaly42(dateStr) {
   if (!el) { console.warn('#card-anomaly42 not found'); return; }
 
   // ★ 第一步：立即清空旧内容
-  el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b><span style="float:right;color:#888;font-size:12px">[A42] 计算中...</span></div>';
+  el.innerHTML = '<div class="sub-title" style="margin-top:16px">4.2 短期多次异常账户（近7天内|环比|>40% 且 ≥ 4次）</div><p style="color:#888;font-size:12px;margin-bottom:8px;padding:8px 12px;background:var(--bg-light);border-radius:6px;border-left:3px solid var(--border);line-height:1.6">📊 统计区间计算中...</p>';
 
   var dateIdx = allDates.indexOf(dateStr);
   console.log('[A42] STEP2 dateIdx=', dateIdx, 'allDates len=', allDates.length);
@@ -1918,8 +1918,9 @@ function renderAnomaly42(dateStr) {
   multiAnomaly.sort(function(a, b) { return b.count - a.count; });
   multiAnomaly = multiAnomaly.slice(0, 10);
 
-  // === 构建卡片 HTML ===
-  var titleHtml = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b>（近7天内同一广告主触发异常 >= 4次）<span style="float:right;font-weight:400;color:#888;font-size:12px">统计区间：' + startLabel + '~' + endLabel + '</span></div>';
+  // === 构建卡片 HTML（标题格式与4.1一致：sub-title + sub-title-desc） ===
+  var titleHtml = '<div class="sub-title" style="margin-top:16px">4.2 短期多次异常账户（近7天内|环比|>40% 且 ≥ 4次）</div>';
+  titleHtml += '<div class="sub-title-desc">📊 筛选条件：统计近7天窗口内，同一广告主在相邻日期间 |环比变化| > 40% 且任一天消耗 > ¥10,000 的异常次数。筛选累计 ≥ 4次的广告主主体。统计区间：' + startLabel + '~' + endLabel + '。</div>';
 
   if (multiAnomaly.length === 0) {
     console.log('[A42] STEP4 no anomalies, showing empty');
@@ -2032,7 +2033,7 @@ function renderAnomaly42(dateStr) {
 
   } catch(err) {
     console.error('[renderAnomaly42] ERROR:', err);
-    el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b></div><div style="color:#ff4d4f;padding:16px">渲染异常: ' + err.message + '</div>';
+    el.innerHTML = '<div class="sub-title" style="margin-top:16px">4.2 短期多次异常账户（近7天内|环比|>40% 且 ≥ 4次）</div><div style="color:#ff4d4f;padding:16px">渲染异常: ' + err.message + '</div>';
   }
 }
 
