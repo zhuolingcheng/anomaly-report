@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 10:34</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 10:45</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1240,7 +1240,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-22 10:34 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-22 10:45 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -1890,6 +1890,9 @@ multiTrends.forEach(function(item) {
     var el = document.getElementById('card-anomaly42');
     if (!el) { console.warn('[renderAnomaly42] #card-anomaly42 not found'); return; }
 
+    // ★ 先立即清空旧内容（避免出错时残留之前日期的数据）
+    el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b>（近7天内同一广告主触发异常 ≥ 4次）<span style="float:right;font-weight:400;color:#888;font-size:12px">📅 加载中...</span></div>';
+
     // 先销毁旧的 ECharts 实例（防止内存泄漏和重复渲染）
     var _oldCharts = el.querySelectorAll('div[_echarts_instance_]');
     _oldCharts.forEach(function(_od) {
@@ -1897,6 +1900,7 @@ multiTrends.forEach(function(item) {
       if (_inst) _inst.dispose();
     });
 
+    try {
     // 7天窗口（选中日及前6天，含选中日）
     var startIdx = Math.max(0, dateIdx - 6);
     // 统计每个广告主在7天内|环比|>40%的天数，并收集每条异常明细
@@ -2036,6 +2040,10 @@ multiTrends.forEach(function(item) {
         });
       });
     }, 150);
+    } catch(e) {
+      console.error('[renderAnomaly42] ERROR:', e);
+      el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b><span style="float:right;font-weight:400;color:#888;font-size:12px">📅 ' + dateStr.substring(5) + '</span></div><div style="color:#ff4d4f;padding:16px">⚠ 渲染异常: ' + e.message + '</div>';
+    }
   }
 
   // ===== 商务组业绩 =====
@@ -2437,8 +2445,12 @@ multiTrends.forEach(function(item) {
   // ===== 流失客户预警（与Python静态HTML格式一致：卡片+ECharts趋势图） =====
   // ===== 流失客户预警（卡片+ECharts趋势图） =====
 function renderChurn(dateStr) {
+  var D = RAW;  // 显式引用全局数据
   var el = document.getElementById('churn_dyn');
   if (!el) return;
+
+  // ★ 先立即清空旧内容
+  el.innerHTML = '<div style="padding:16px;color:#888;">加载中...</div>';
 
   var dateIdx = allDates.indexOf(dateStr);
   if (dateIdx < 0) { el.innerHTML = '<div style="padding:16px;color:#999;">日期不存在</div>'; return; }
