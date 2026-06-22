@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 11:45</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 12:28</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -863,10 +863,10 @@ function switchTab(btn, panelId) {
     _chCharts[tabId].push(chart);
   }
     // 暴露关键变量给全局（供日期切换函数使用）
-    window.D = D;
-    window.allDates = allDates;
-    window.reportDate = reportDate;
-    window.renderTrend = renderTrend;
+    if (typeof D !== 'undefined') { window.D = D; }
+    if (typeof allDates !== 'undefined') { window.allDates = allDates; }
+    if (typeof reportDate !== 'undefined') { window.reportDate = reportDate; }
+    if (typeof renderTrend !== 'undefined') { window.renderTrend = renderTrend; }
 
 })();
 </script>
@@ -943,10 +943,10 @@ function switchTab(btn, panelId) {
     _chCharts[tabId].push(chart);
   }
     // 暴露关键变量给全局（供日期切换函数使用）
-    window.D = D;
-    window.allDates = allDates;
-    window.reportDate = reportDate;
-    window.renderTrend = renderTrend;
+    if (typeof D !== 'undefined') { window.D = D; }
+    if (typeof allDates !== 'undefined') { window.allDates = allDates; }
+    if (typeof reportDate !== 'undefined') { window.reportDate = reportDate; }
+    if (typeof renderTrend !== 'undefined') { window.renderTrend = renderTrend; }
 
 })();
 </script>
@@ -1023,10 +1023,10 @@ function switchTab(btn, panelId) {
     _chCharts[tabId].push(chart);
   }
     // 暴露关键变量给全局（供日期切换函数使用）
-    window.D = D;
-    window.allDates = allDates;
-    window.reportDate = reportDate;
-    window.renderTrend = renderTrend;
+    if (typeof D !== 'undefined') { window.D = D; }
+    if (typeof allDates !== 'undefined') { window.allDates = allDates; }
+    if (typeof reportDate !== 'undefined') { window.reportDate = reportDate; }
+    if (typeof renderTrend !== 'undefined') { window.renderTrend = renderTrend; }
 
 })();
 </script>
@@ -1182,7 +1182,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-22 11:45 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-22 12:28 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
 </div>
 
 </div>
