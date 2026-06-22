@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 12:28</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-06-21 | 巨量-本地推 | 生成于 2026-06-22 14:36</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1182,7 +1182,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-06-22 12:28 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-06-22 14:36 | 数据截至: 2026-06-21 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -1826,25 +1826,27 @@ multiTrends.forEach(function(item) {
 // ===== 异常明细 4.2（短期多次异常账户：卡片式+明细表格+ECharts趋势图） =====
 // 独立文件，避免 Python f-string 转义问题
 function renderAnomaly42(dateStr) {
-  console.log('[renderAnomaly42] ENTRY, dateStr=', dateStr, 'allDates length=', (typeof allDates !== 'undefined' ? allDates.length : 'allDates undefined'));
+  console.log('[A42] STEP1 ENTRY, dateStr=', dateStr);
   var D = RAW;
-  if (typeof D === 'undefined') { console.error('[renderAnomaly42] RAW is undefined!'); return; }
-  if (typeof allDates === 'undefined') { console.error('[renderAnomaly42] allDates is undefined!'); return; }
-  if (!dateStr) { console.warn('[renderAnomaly42] dateStr is empty'); return; }
+  if (typeof D === 'undefined') { console.error('[A42] RAW undefined!'); return; }
+  if (typeof allDates === 'undefined') { console.error('[A42] allDates undefined!'); return; }
+  if (!dateStr) { console.warn('[A42] dateStr empty'); return; }
 
   var el = document.getElementById('card-anomaly42');
   if (!el) { console.warn('#card-anomaly42 not found'); return; }
 
-  // ★ 第一步：立即清空旧内容，杜绝残留
-  el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b><span style="float:right;color:#888;font-size:12px">加载中...</span></div>';
+  // ★ 第一步：立即清空旧内容
+  el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b><span style="float:right;color:#888;font-size:12px">[A42] 计算中...</span></div>';
 
   var dateIdx = allDates.indexOf(dateStr);
+  console.log('[A42] STEP2 dateIdx=', dateIdx, 'allDates len=', allDates.length);
   if (dateIdx < 0) {
-    el.innerHTML = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b></div><div style="color:#999;padding:16px">日期不存在</div>';
+    el.innerHTML = '<div style="color:red;padding:16px">[A42] 日期不在数据中: ' + dateStr + '</div>';
     return;
   }
 
   try {
+    console.log('[A42] STEP3 entering try block, checking helpers: fmtMoney=' + (typeof fmtMoney) + ' changeBadge=' + (typeof changeBadge) + ' ownerTag=' + (typeof ownerTag));
 
   // 销毁旧的 ECharts 实例
   var oldCharts = el.querySelectorAll('div[_echarts_instance_]');
@@ -1920,9 +1922,12 @@ function renderAnomaly42(dateStr) {
   var titleHtml = '<div class="card-title"><span class="section-number">4</span> <b>4.2 短期多次异常账户</b>（近7天内同一广告主触发异常 >= 4次）<span style="float:right;font-weight:400;color:#888;font-size:12px">统计区间：' + startLabel + '~' + endLabel + '</span></div>';
 
   if (multiAnomaly.length === 0) {
+    console.log('[A42] STEP4 no anomalies, showing empty');
     el.innerHTML = titleHtml + '<div style="color:#52c41a;padding:16px;font-size:14px">暂无频繁波动账户</div>';
     return;
   }
+
+  console.log('[A42] STEP4 has', multiAnomaly.length, 'anomalies, building HTML...');
 
   var cardsHtml = '';
   var chartIds = [];
@@ -1969,6 +1974,7 @@ function renderAnomaly42(dateStr) {
   }
 
   el.innerHTML = titleHtml + cardsHtml;
+  console.log('[A42] STEP5 DONE! innerHTML set, cardsHtml length=', cardsHtml.length);
 
   // === 渲染 ECharts 趋势图 ===
   setTimeout(function() {
