@@ -362,7 +362,7 @@
 <!-- Header -->
 <div class="header">
   <h1>📊 第21事业部消耗异常波动日报</h1>
-  <div class="subtitle" id="header-subtitle">数据截至 2026-07-22 | 巨量-本地推 | 生成于 2026-07-23 23:12</div>
+  <div class="subtitle" id="header-subtitle">数据截至 2026-07-22 | 巨量-本地推 | 生成于 2026-07-23 23:22</div>
 </div>
 
 <!-- 日期筛选器 -->
@@ -1092,7 +1092,7 @@ function switchTab(btn, panelId) {
 </div>
 
 <div class="footer">
-  报告生成时间: 2026-07-23 23:12 | 数据截至: 2026-07-22 | 分析口径: 巨量-本地推
+  报告生成时间: 2026-07-23 23:22 | 数据截至: 2026-07-22 | 分析口径: 巨量-本地推
 </div>
 
 </div>
@@ -2431,13 +2431,16 @@ function renderChurn(dateStr) {
       h += '  <div style="font-weight:600;color:#c0392b;">⚠️ ' + escHtml(w.name) + ' <span style="font-weight:400;font-size:12px">' + (typeof ownerTag === 'function' ? ownerTag(w.idx, 'adv') : '') + '</span></div>';
       // 信息行：降幅、商务、商机
       h += '  <div style="font-size:12px;color:#999;margin:4px 0 8px;line-height:1.8">';
-      h += '    ⬇️ 近3天降幅：<b style="color:#e74c3c">' + (dropRate >= 0 ? '+' : '') + w.dropRate.toFixed(0) + '%</b>';
+      h += '    ⬇️ 近3天降幅：<b style="color:#e74c3c">' + (w.dropRate >= 0 ? '+' : '') + w.dropRate.toFixed(0) + '%</b>';
       if (w.salesPerson) {
         h += '    &nbsp;|&nbsp; 👤 归属商务：<b>' + escHtml(w.salesPerson) + '</b>';
       }
       if (w.bizList.length > 0) {
         h += '    &nbsp;|&nbsp; 📋 归属商机：<b>' + escHtml(w.bizList.slice(0, 3).join('、')) + (w.bizList.length > 3 ? ' 等' + w.bizList.length + '个' : '') + '</b>';
       }
+      h += '  </div>';
+      h += '  <div id="' + cardId + '" style="width:100%;height:180px;"></div>';
+      h += '</div>';
     }
   }
   el.innerHTML = h;
